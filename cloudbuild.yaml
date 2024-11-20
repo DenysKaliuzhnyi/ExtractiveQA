@@ -4,7 +4,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/question-answering-app']
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['run', 'deploy', 'qa-app', '--image', 'gcr.io/$PROJECT_ID/question-answering-app']
+    args: ['run', 'deploy', 'qa-app', '--image', 'gcr.io/$PROJECT_ID/question-answering-app', '--region', 'europe-west1']
 images:
   - 'gcr.io/$PROJECT_ID/question-answering-app'
 options:
