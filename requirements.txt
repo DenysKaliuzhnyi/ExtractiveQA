@@ -1,0 +1,6 @@
+requests==2.32.3
+torch==2.5.1
+transformers
+fastapi==0.115.5
+python-telegram-bot==21.7
+uvicorn==0.32.0
