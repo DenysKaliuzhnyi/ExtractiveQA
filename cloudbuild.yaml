@@ -7,3 +7,5 @@ steps:
     args: ['run', 'deploy', 'qa-app', '--image', 'gcr.io/$PROJECT_ID/question-answering-app']
 images:
   - 'gcr.io/$PROJECT_ID/question-answering-app'
+options:
+  logging: CLOUD_LOGGING_ONLY
