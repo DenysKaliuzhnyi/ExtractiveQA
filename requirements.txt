@@ -4,3 +4,5 @@ transformers
 fastapi==0.115.5
 python-telegram-bot==21.7
 uvicorn==0.32.0
+google-cloud==0.34.0
+google-cloud-secret-manager==2.21.1

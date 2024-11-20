@@ -1,6 +1,17 @@
+import os
 import requests
+from google.cloud import secretmanager
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+
+
+project_id = os.getenv("GCP_PROJECT_ID")
+
+def get_secret(secret_name):
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
+    response = client.access_secret_version(request={"name": name})
+    return response.payload.data.decode("UTF-8")
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -34,7 +45,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 def main():
-    bot_token = "xxxx"
+    bot_token = get_secret("BOT_TOKEN")
 
     application = Application.builder().token(bot_token).build()
     application.add_handler(CommandHandler("start", start))
