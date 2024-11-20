@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  fastapi:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - MODEL_DIR=${MODEL_DIR}
+  bot:
+    build: .
+    command: python3 bot.py
+    depends_on:
+      - fastapi
+    environment:
+      - API_URL=http://fastapi:8000
+      - BOT_TOKEN=${BOT_TOKEN}
