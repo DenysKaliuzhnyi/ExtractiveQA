@@ -4,7 +4,7 @@ from transformers import pipeline, AutoModelForQuestionAnswering, AutoTokenizer
 
 
 app = FastAPI()
-model_dir = "../transformers/examples/pytorch/question-answering/runs/train_epoch40"
+model_dir = "artifacts/model"
 model = AutoModelForQuestionAnswering.from_pretrained(model_dir)
 tokenizer = AutoTokenizer.from_pretrained(model_dir)
 qa_pipeline = pipeline("question-answering", model=model, tokenizer=tokenizer)
