@@ -24,15 +24,8 @@ steps:
       - '--memory'
       - '$_MODEL_MEMORY'
       - '--allow-unauthenticated'
-    id: 'deploy-fastapi'
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: bash
-    args:
-      - '-c'
-      - |
-        FASTAPI_URL=$(gcloud run services describe fastapi --platform managed --region $_REGION --format 'value(status.url)')
-        echo "FASTAPI_URL=$FASTAPI_URL" > $HOME/FASTAPI_URL.txt
-    id: 'get-fastapi-url'
+      - '--set-env-vars'
+      - 'MODEL_BUCKET=qa-model-32985712,MODEL_PATH=model'
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -46,8 +39,7 @@ steps:
       - '--region'
       - '$_REGION'
       - '--set-env-vars'
-      - 'API_URL=http://fastapi,WEBHOOK_URL=$(cat $HOME/FASTAPI_URL.txt)'
-    id: 'deploy-bot'
+      - 'API_URL=http://fastapi,WEBHOOK_URL=https://fastapi-294066974524.europe-west1.run.app'
 images:
   - 'gcr.io/$PROJECT_ID/fastapi'
   - 'gcr.io/$PROJECT_ID/bot'
