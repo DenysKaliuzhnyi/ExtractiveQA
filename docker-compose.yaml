@@ -6,6 +6,9 @@ services:
       - "8080:8080"
     volumes:
       - .:/app
+    environment:
+      - MODEL_BUCKET=qa-model-32985712
+      - MODEL_PATH=model
   bot:
     build: .
     command: python3 bot.py
