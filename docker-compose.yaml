@@ -3,7 +3,9 @@ services:
   fastapi:
     build: .
     ports:
-      - "8000:8000"
+      - "8080:8080"
+    environment:
+      - PORT=8080
     volumes:
       - .:/app
   bot:
@@ -14,6 +16,6 @@ services:
     volumes:
       - ./secrets/extractiveqa-service-accout-key.json:/app/key.json
     environment:
-      - API_URL=http://fastapi:8000
+      - API_URL=http://fastapi:8080
       - GOOGLE_APPLICATION_CREDENTIALS=/app/key.json
       - GCP_PROJECT_ID=extractiveqa-442314

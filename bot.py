@@ -25,7 +25,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
 
     context_text, question = map(str.strip, user_message.split("|", 1))
-    api_url = "http://localhost:8000/answer"
+    api_url = os.getenv("API_URL") + '/answer'
     payload = {"context": context_text, "question": question}
     response = requests.post(api_url, json=payload)
 
