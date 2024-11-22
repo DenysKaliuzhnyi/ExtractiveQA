@@ -16,6 +16,8 @@ steps:
       - 'managed'
       - '--region'
       - '$_REGION'
+      - '--memory'
+      - '$_MODEL_MEMORY'
       - '--allow-unauthenticated'
       - '--set-env-vars'
       - 'MODEL_BUCKET=qa-model-32985712,MODEL_PATH=model'
@@ -41,5 +43,6 @@ images:
   - 'gcr.io/$PROJECT_ID/service'
 substitutions:
   _REGION: europe-west1
+  _MODEL_MEMORY: 2Gi
 options:
   logging: CLOUD_LOGGING_ONLY
