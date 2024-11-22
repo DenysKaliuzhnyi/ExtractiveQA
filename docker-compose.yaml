@@ -19,4 +19,3 @@ services:
     environment:
       - API_URL=http://fastapi:8080
       - GOOGLE_APPLICATION_CREDENTIALS=/app/key.json
-      - GCP_PROJECT_ID=extractiveqa-442314

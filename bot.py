@@ -1,11 +1,11 @@
 import os
 import requests
+from google.auth import default
 from google.cloud import secretmanager
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
-
-project_id = os.getenv("GCP_PROJECT_ID")
+project_id = default()[1]
 
 def get_secret(secret_name):
     client = secretmanager.SecretManagerServiceClient()
