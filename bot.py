@@ -1,4 +1,5 @@
 import os
+import asyncio
 import requests
 from google.auth import default
 from google.cloud import secretmanager
@@ -66,12 +67,12 @@ def webhook():
     application.process_update(update)
     return '', 200
 
-def set_webhook():
+async def set_webhook():
     url = os.getenv("WEBHOOK_URL")
-    bot.set_webhook(url + "/webhook")
+    await bot.set_webhook(url + "/webhook")
 
 def main():
-    set_webhook()
+    asyncio.run(set_webhook())
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     app.run(host="0.0.0.0", port=8080)
