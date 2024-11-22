@@ -1,10 +1,11 @@
 import os
 import requests
-from flask import Flask, request
 from google.auth import default
 from google.cloud import secretmanager
 from telegram import Update, Bot
-from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, Dispatcher, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+from flask import Flask, request
+
 
 app = Flask(__name__)
 
@@ -15,6 +16,12 @@ def get_secret(secret_name):
     name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
     response = client.access_secret_version(request={"name": name})
     return response.payload.data.decode("UTF-8")
+
+
+bot_token = get_secret("BOT_TOKEN")
+bot = Bot(token=bot_token)
+application = Application.builder().token(bot_token).build()
+
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_message = update.message.text.strip()
@@ -54,24 +61,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    update = Update.de_json(request.get_json(force=True), bot)
-    dispatcher.process_update(update)
-    return 'ok'
+    json_str = request.get_data().decode('UTF-8')
+    update = Update.de_json(json_str, bot)
+    application.process_update(update)
+    return '', 200
 
+def set_webhook():
+    url = os.getenv("WEBHOOK_URL")
+    bot.set_webhook(url + "/webhook")
 
 def main():
-    bot_token = get_secret("BOT_TOKEN")
-
-    global bot
-    bot = Bot(token=bot_token)
-    global dispatcher
-    dispatcher = Dispatcher(bot, None, workers=0)
-
-    application = Application.builder().token(bot_token).build()
+    set_webhook()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.run(host="0.0.0.0", port=8080)
 
-    app.run(host='0.0.0.0', port=8080)
 
 if __name__ == "__main__":
     main()
