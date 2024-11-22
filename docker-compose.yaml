@@ -1,7 +1,9 @@
 version: "3.9"
 services:
   fastapi:
-    build: .
+    build:
+      context: .
+      dockerfile: fastapi.Dockerfile
     ports:
       - "8080:8080"
     volumes:
@@ -10,8 +12,9 @@ services:
       - MODEL_BUCKET=qa-model-32985712
       - MODEL_PATH=model
   bot:
-    build: .
-    command: python3 bot.py
+    build:
+      context: .
+      dockerfile: bot.Dockerfile
     depends_on:
       - fastapi
     volumes:
