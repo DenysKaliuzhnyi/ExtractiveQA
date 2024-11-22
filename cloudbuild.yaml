@@ -36,7 +36,7 @@ steps:
       - '--args'
       - 'bot.py'
       - '--set-env-vars'
-      - 'API_URL=http://fastapi:8080'
+      - 'API_URL=http://fastapi'
 images:
   - 'gcr.io/$PROJECT_ID/service'
 substitutions:
