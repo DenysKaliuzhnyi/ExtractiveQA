@@ -27,13 +27,21 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     context_text, question = map(str.strip, user_message.split("|", 1))
     api_url = os.getenv("API_URL") + '/answer'
     payload = {"context": context_text, "question": question}
-    response = requests.post(api_url, json=payload)
 
+    try:
+        response = requests.post(api_url, json=payload)
+    except Exception as e:
+        await update.message.reply_text(f"An unexpected error occurred: {str(e)}")
+        return
+
+    reply = "Sorry, something went wrong. Please try again."
     if response.status_code == 200:
-        answer = response.json().get("answer", "Sorry, I couldn't find an answer.")
-        await update.message.reply_text(f"Answer: {answer}")
-    else:
-        await update.message.reply_text("Sorry, something went wrong. Please try again.")
+        response = response.json()
+        if "answer" in response:
+            reply = f"Answer: {response['answer']}"
+        elif "error" in response:
+            reply = f"Error: {response['error']}"
+    await update.message.reply_text(reply)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

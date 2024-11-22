@@ -16,5 +16,8 @@ class QARequest(BaseModel):
 
 @app.post("/answer")
 def get_answer(request: QARequest):
-    result = qa_pipeline({"question": request.question, "context": request.context})
-    return {"answer": result["answer"]}
+    try:
+        result = qa_pipeline({"question": request.question, "context": request.context})
+        return {"answer": result["answer"]}
+    except Exception as e:
+        return {"error": str(e)}
