@@ -1,4 +1,5 @@
 import os
+import json
 import asyncio
 import requests
 from google.auth import default
@@ -62,10 +63,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    json_str = request.get_data().decode('UTF-8')
-    update = Update.de_json(json_str, bot)
-    application.process_update(update)
-    return '', 200
+    try:
+        json_data = json.loads(request.get_data().decode('UTF-8'))
+        print(f"Incoming webhook payload: {json_data}")
+        update = Update.de_json(json_data, bot)
+        application.process_update(update)
+        return '', 200
+    except Exception as e:
+        print(f"Error processing webhook: {str(e)}")
+        return '', 500
 
 async def set_webhook():
     url = os.getenv("WEBHOOK_URL")
