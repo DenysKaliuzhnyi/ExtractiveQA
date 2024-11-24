@@ -1,27 +1,27 @@
 import os
 import asyncio
-import json
-import requests
+import logging
+import aiohttp
 from google.auth import default
 from google.cloud import secretmanager
 from telegram import Update, Bot
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
-from flask import Flask, request, abort
 
-app = Flask(__name__)
+# Configure logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 project_id = default()[1]
 
-def get_secret(secret_name):
+
+def get_secret(secret_name: str) -> str:
     client = secretmanager.SecretManagerServiceClient()
     name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
     response = client.access_secret_version(request={"name": name})
     return response.payload.data.decode("UTF-8")
-
-
-bot_token = get_secret("BOT_TOKEN")
-bot = Bot(token=bot_token)
-application = Application.builder().token(bot_token).build()
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -35,27 +35,35 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
 
     context_text, question = map(str.strip, user_message.split("|", 1))
-    api_url = os.getenv("API_URL") + '/answer'
+    api_url = os.getenv("API_URL")
+    if not api_url:
+        logger.error("API_URL environment variable is not set")
+        await update.message.reply_text("Bot configuration error. Please contact administrator.")
+        return
+
     payload = {"context": context_text, "question": question}
 
     try:
-        response = requests.post(api_url, json=payload)
-        response.raise_for_status()
-        response_data = response.json()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(f"{api_url}/answer", json=payload) as response:
+                response_data = await response.json()
 
-        # Handle response
-        if "answer" in response_data:
-            reply = f"Answer: {response_data['answer']}"
-        elif "error" in response_data:
-            reply = f"Error: {response_data['error']}"
-        else:
-            reply = "Unexpected response from the API."
-    except requests.exceptions.RequestException as e:
-        reply = f"Error contacting the API: {e}"
+                if response.status != 200:
+                    logger.error(f"API error: {response.status} - {response_data}")
+                    raise aiohttp.ClientError(f"API returned status {response.status}")
+
+                reply = f"Answer: {response_data['answer']}" if "answer" in response_data else \
+                    f"Error: {response_data.get('error', 'Unknown error')}"
+
+    except aiohttp.ClientError as e:
+        logger.error(f"API request failed: {e}")
+        reply = "Sorry, I'm having trouble reaching the API right now. Please try again later."
     except Exception as e:
-        reply = f"An unexpected error occurred: {e}"
+        logger.error(f"Unexpected error: {e}")
+        reply = "An unexpected error occurred. Please try again later."
 
     await update.message.reply_text(reply)
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
@@ -64,39 +72,30 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "The Transformers library provides NLP tools. | What does it provide?"
     )
 
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    try:
-        json_data = json.loads(request.get_data().decode('UTF-8'))
-        # Validate the request is from Telegram (basic security)
-        if not json_data.get("update_id"):
-            abort(403)
 
-        update = Update.de_json(json_data, bot)
-        asyncio.run(application.process_update(update))
-        return '', 200
-    except Exception as e:
-        app.logger.error(f"Error processing webhook: {e}")
-        abort(500)
-
-async def set_webhook():
+def main() -> None:
     try:
+        bot_token = get_secret("BOT_TOKEN")
         webhook_url = os.getenv("WEBHOOK_URL")
-        if not webhook_url:
-            raise ValueError("WEBHOOK_URL environment variable is not set.")
-        await bot.set_webhook(webhook_url + "/webhook")
-        app.logger.info(f"Webhook successfully set to {webhook_url}/webhook")
-    except Exception as e:
-        app.logger.error(f"Error setting webhook: {e}")
+        port = int(os.getenv("PORT", "8080"))
 
-def main():
-    try:
-        asyncio.run(set_webhook())
+        if not webhook_url:
+            raise ValueError("WEBHOOK_URL environment variable is not set")
+
+        application = Application.builder().token(bot_token).build()
         application.add_handler(CommandHandler("start", start))
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-        app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
+        logger.info(f"Starting bot webhook on port {port}")
+        application.run_webhook(
+            listen="0.0.0.0",
+            port=port,
+            url_path="/webhook",
+            webhook_url=f"{webhook_url}/webhook"
+        )
     except Exception as e:
-        app.logger.error(f"Failed to start application: {e}")
+        logger.error(f"Failed to start application: {e}")
+        raise
 
 
 if __name__ == "__main__":
