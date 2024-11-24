@@ -67,7 +67,7 @@ def webhook():
         json_data = json.loads(request.get_data().decode('UTF-8'))
         print(f"Incoming webhook payload: {json_data}")
         update = Update.de_json(json_data, bot)
-        application.process_update(update)
+        asyncio.run(application.process_update(update))
         return '', 200
     except Exception as e:
         print(f"Error processing webhook: {str(e)}")
