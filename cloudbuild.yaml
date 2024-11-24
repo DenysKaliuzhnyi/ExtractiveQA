@@ -38,6 +38,7 @@ steps:
       - 'managed'
       - '--region'
       - '$_REGION'
+      - '--allow-unauthenticated'
       - '--set-env-vars'
       - 'API_URL=http://fastapi,WEBHOOK_URL=https://bot-294066974524.europe-west1.run.app'
 images:
