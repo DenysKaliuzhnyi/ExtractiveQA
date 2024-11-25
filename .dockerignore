@@ -17,5 +17,4 @@ __pycache__/
 .gitignore
 
 # Exclude unnecessary large files
-artifacts/
 secrets/

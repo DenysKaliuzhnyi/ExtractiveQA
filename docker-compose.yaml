@@ -4,21 +4,29 @@ services:
     build:
       context: .
       dockerfile: fastapi.Dockerfile
+      target: fastapi
+    container_name: fastapi_service
     ports:
-      - "8080:8080"
-    volumes:
-      - .:/app
+      - "8081:8080"
     environment:
-      - MODEL_BUCKET=qa-model-32985712
-      - MODEL_PATH=model
+      MODEL_BUCKET: qa-model-32985712
+    volumes:
+      - ./artifacts:/app/artifacts  # if model is stored locally, no need to download fron GCS
+    networks:
+      - app_network
   bot:
     build:
       context: .
       dockerfile: bot.Dockerfile
-    depends_on:
-      - fastapi
-    volumes:
-      - ./secrets/extractiveqa-service-accout-key.json:/app/key.json
+      target: bot
+    container_name: bot_service
+    ports:
+      - "8082:8080"
     environment:
-      - API_URL=http://fastapi:8080
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/key.json
+      API_URL: http://fastapi:8080
+      WEBHOOK_URL: http://localhost:8082
+    networks:
+      - app_network
+networks:
+  app_network:
+    driver: bridge
