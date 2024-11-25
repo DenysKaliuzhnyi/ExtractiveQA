@@ -40,7 +40,7 @@ steps:
       - '$_REGION'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'API_URL=https://fastapi-$PROJECT_ID.$_REGION.run.app,WEBHOOK_URL=https://bot-$PROJECT_ID.$_REGION.run.app'
+      - 'API_URL=https://fastapi-$PROJECT_NUMBER.$_REGION.run.app,WEBHOOK_URL=https://bot-$PROJECT_NUMBER.$_REGION.run.app'
 images:
   - 'gcr.io/$PROJECT_ID/fastapi'
   - 'gcr.io/$PROJECT_ID/bot'
