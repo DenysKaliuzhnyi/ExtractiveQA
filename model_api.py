@@ -56,6 +56,9 @@ class QARequest(BaseModel):
 def get_answer(request: QARequest):
     try:
         result = qa_pipeline({"question": request.question, "context": request.context})
-        return {"answer": result["answer"]}
+        answer = result["answer"]
+        score = result["score"]
+        response = answer if score > 1e-5 else "Sorry, I couldn't find the answer form the provided context."
+        return {"answer": response}
     except Exception as e:
         return {"error": str(e)}
