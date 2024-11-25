@@ -25,7 +25,7 @@ steps:
       - '$_MODEL_MEMORY'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'MODEL_BUCKET=qa-model-32985712'
+      - 'MODEL_BUCKET=$_MODEL_BUCKET'
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -47,5 +47,6 @@ images:
 substitutions:
   _REGION: europe-west1
   _MODEL_MEMORY: 2Gi
+  _MODEL_BUCKET: qa-model-32985712
 options:
   logging: CLOUD_LOGGING_ONLY
