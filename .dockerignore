@@ -1,0 +1,21 @@
+# Exclude virtual environments and temporary files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.tmp
+*.bak
+
+# Exclude local development artifacts
+*.env
+.env.*
+.DS_Store
+
+# Exclude version control system files
+.git/
+.gitignore
+
+# Exclude unnecessary large files
+artifacts/
+secrets/
