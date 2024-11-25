@@ -51,10 +51,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                     raise aiohttp.ClientError(f"API returned status {response.status}")
                 reply = response_data.get('answer') or response_data.get('error', 'Internal QA model error.')
     except aiohttp.ClientError as e:
-        logger.error(f"API request failed: {e}")
+        logger.error(f"API request failed: {e}", exc_info=True)
         reply = "Sorry, I'm having trouble reaching the API. Please try again later."
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Unexpected error: {e}", exc_info=True)
         reply = "An unexpected error occurred. Please try again later."
 
     await update.message.reply_text(reply)
@@ -89,7 +89,7 @@ def main() -> None:
             webhook_url=f"{webhook_url}/webhook"
         )
     except Exception as e:
-        logger.error(f"Failed to start application: {e}")
+        logger.error(f"Failed to start application: {e}", exc_info=True)
         raise
 
 
