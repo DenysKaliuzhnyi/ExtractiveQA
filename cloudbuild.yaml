@@ -1,11 +1,11 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/fastapi', '-f', 'fastapi.Dockerfile', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/fastapi', '--target', 'fastapi', '.']
     dir: '.'
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/fastapi']
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/bot', '-f', 'bot.Dockerfile', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/bot', '--target', 'bot', '.']
     dir: '.'
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/bot']
