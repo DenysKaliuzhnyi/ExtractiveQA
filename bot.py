@@ -13,7 +13,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
-
+api_url = os.getenv("API_URL")
 project_id = default()[1]
 
 
@@ -25,6 +25,11 @@ def get_secret(secret_name: str) -> str:
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not api_url:
+        logger.error("API_URL environment variable is not set")
+        await update.message.reply_text("Bot configuration error. Please contact administrator.")
+        return
+
     user_message = update.message.text.strip()
 
     if "|" not in user_message:
@@ -35,29 +40,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
 
     context_text, question = map(str.strip, user_message.split("|", 1))
-    api_url = os.getenv("API_URL")
-    if not api_url:
-        logger.error("API_URL environment variable is not set")
-        await update.message.reply_text("Bot configuration error. Please contact administrator.")
-        return
-
     payload = {"context": context_text, "question": question}
 
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(f"{api_url}/answer", json=payload) as response:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
+            async with session.post(f"{os.getenv('API_URL')}/answer", json=payload) as response:
                 response_data = await response.json()
-
                 if response.status != 200:
                     logger.error(f"API error: {response.status} - {response_data}")
                     raise aiohttp.ClientError(f"API returned status {response.status}")
-
-                reply = f"Answer: {response_data['answer']}" if "answer" in response_data else \
-                    f"Error: {response_data.get('error', 'Unknown error')}"
-
+                reply = response_data.get('answer') or response_data.get('error', 'Internal QA model error.')
     except aiohttp.ClientError as e:
         logger.error(f"API request failed: {e}")
-        reply = "Sorry, I'm having trouble reaching the API right now. Please try again later."
+        reply = "Sorry, I'm having trouble reaching the API. Please try again later."
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         reply = "An unexpected error occurred. Please try again later."
