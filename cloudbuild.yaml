@@ -28,7 +28,7 @@ steps:
       - '$_MODEL_MEMORY'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'MODEL_BUCKET=qa-model-32985712,MODEL_PATH=model'
+      - 'MODEL_BUCKET=qa-model-32985712'
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
