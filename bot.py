@@ -43,7 +43,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     payload = {"context": context_text, "question": question}
 
     try:
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as session:
             async with session.post(f"{os.getenv('API_URL')}/answer", json=payload) as response:
                 response_data = await response.json()
                 if response.status != 200:
