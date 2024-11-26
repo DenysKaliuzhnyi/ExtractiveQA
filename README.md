@@ -4,6 +4,10 @@ Run for scalable containerized deployment, GCP cloudbuild configuration for CI/C
 hosting, and Google Cloud Secret Manager for secure configuration. The system is built using Python, FastAPI, 
 Hugging Face Transformers, and Telegram Bot API.
 
+<div style="text-align: center;">
+    <img src="artifacts/bot.png" alt="bot" width="300" />
+</div>
+
 ---
 ### Project Overview
 
@@ -123,8 +127,9 @@ Below there is a training summery from logs and Weights & Biases.
   eval_steps_per_second   =     17.159
   eval_total              =      11873
 ```
-![training_loss.png](artifacts%2Ftraining_loss.png)
-
+<div style="text-align: center;">
+    <img src="artifacts/training_loss.png" alt="bot" width="500" />
+</div>
 ---
 
 ### Setup Instructions
